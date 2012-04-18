@@ -32,9 +32,9 @@ audio:not([controls]) { display: none; }
 
 html { font-size: 100%; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
 
-html, button, input, select, textarea { font-family: sans-serif; color: #222; }
+html, button, input, select, textarea { font-family: "Helvetica Neue", sans-serif; color: #ddd; }
 
-body { margin: 0; font-size: 1em; line-height: 1.4; }
+body { margin: 0; font-size: 1em; line-height: 1.4; background:black; }
 
 /*
  * Remove text-shadow in selection highlight: h5bp.com/i
@@ -220,14 +220,39 @@ td { vertical-align: top; }
 
 
 
+#map3d {
+  float:left;
+  height: 100%;
+  width: 60%;
+}
 
+#tweeties {
+  float:right;
+  height:100%;
+  width:35%;
+  padding: 15px;
+}
+#clock {
+  text-align:center;
+}
+#intro {
+}
+#time {
+  font-size: 700%;
+}
 
-
-
-
-
-
-
+#tweets {
+  height: 600px;
+  overflow-y: scroll;
+}
+#tweet {
+  color: #888;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.1);
+  margin: 10px;
+  padding: 5px;
+}
 
 
 
