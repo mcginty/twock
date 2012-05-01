@@ -74,6 +74,6 @@ $(document).ready(function() {
     });
 
     socket.on('guess', function(guess){
-        $('#time').html(guess.time);
+        $('#time').html("#{guess.time} (&plusmn;#{guess.stdev}));
     });
 });
