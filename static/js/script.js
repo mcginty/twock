@@ -1,79 +1,119 @@
-/* Author: YOUR NAME HERE
-*/
-var ge;
-google.load("earth", "1");
-function init() {
-  google.earth.createInstance('map3d', initCallback, failureCallback);
-}
-function initCallback(pluginInstance) {
-  ge = pluginInstance;
-  ge.getWindow().setVisibility(true);
-  // add a navigation control
-  ge.getNavigationControl().setVisibility(ge.VISIBILITY_AUTO);
-  // add some layers
-  ge.getLayerRoot().enableLayerById(ge.LAYER_BORDERS, false);
-  ge.getLayerRoot().enableLayerById(ge.LAYER_ROADS, false);
+(function() {
 
-  var lookAt = ge.getView().copyAsLookAt(ge.ALTITUDE_RELATIVE_TO_GROUND);
-
-  // USA USA
-  lookAt.setLatitude(38);
-  lookAt.setLongitude(-96);
-  lookAt.setTilt(0.0);
-  lookAt.setHeading(0.0);
-  lookAt.setRange(5000000.0);
-  ge.getView().setAbstractView(lookAt);
-}
-function failureCallback(errorCode) {
-}
-function createPlacemark(lat,lon,name,img) {
-  var placemark = ge.createPlacemark('');
-  placemark.setName(name);
-  ge.getFeatures().appendChild(placemark);
-
-  // Create style map for placemark
-  var icon = ge.createIcon('');
-  icon.setHref(img);
-  var style = ge.createStyle('');
-  style.getIconStyle().setIcon(icon);
-  placemark.setStyleSelector(style);
-
-  // Create point
-  var la = ge.getView().copyAsLookAt(ge.ALTITUDE_RELATIVE_TO_GROUND);
-  var point = ge.createPoint('');
-  point.setLatitude(lat);
-  point.setLongitude(lon);
-  placemark.setGeometry(point);
-}
-function timeToImg(time) {
-    if (time >= 5 && time < 12) {
-        return 'http://localhost:8081/images/MorningBird.png';
-    }
-    else if (time >= 12 && time < 17) {
-        return 'http://localhost:8081/images/AfternoonBird.png';
-    }
-    else {
-        return 'http://localhost:8081/images/NightBird.png';
-    }
-}
-$(document).ready(function() {
-
-    var socket = io.connect();
-
-    $('#sender').bind('click', function() {
-        socket.emit('message', 'Message Sent on ' + new Date());
+  $(document).ready(function() {
+    var afternoon, arteriesMapType, arteriesStyle, golden, lastInfoWindow, map, mapsOptions, markers, maxMarkers, morning, night, pad, realTimeFromFloat, recentTweet, shadow, socket, timeToImg;
+    maxMarkers = 50;
+    arteriesStyle = [
+      {
+        stylers: [
+          {
+            visibility: "off"
+          }
+        ]
+      }, {
+        featureType: "water",
+        elementType: "geometry",
+        stylers: [
+          {
+            visibility: "on"
+          }, {
+            saturation: 73
+          }, {
+            lightness: -20
+          }, {
+            gamma: 0.96
+          }
+        ]
+      }
+    ];
+    pad = function(number, length) {
+      var str;
+      str = "" + number;
+      while (str.length < length) {
+        str = "0" + str;
+      }
+      return str;
+    };
+    realTimeFromFloat = function(floatTime) {
+      var hours, mins;
+      hours = Math.floor(floatTime);
+      mins = Math.abs(Math.floor((hours - floatTime) * 59));
+      while (hours < 0) {
+        hours += 24;
+      }
+      return "" + pad(Math.floor(hours), 2) + ":" + pad(mins, 2);
+    };
+    arteriesMapType = new google.maps.StyledMapType(arteriesStyle, {
+      name: "Simple"
     });
-
-    socket.on('tweet', function(data){
-        $('#tweets').prepend('<div id="tweet">' + data.tweet.text + '</div>');
-        createPlacemark(
-            data.tweet.coordinates[0],
-            data.tweet.coordinates[1],
-            data.word.word,
-            timeToImg(data.word.time));
+    mapsOptions = {
+      center: new google.maps.LatLng(37.71859032558813, -97.822265625),
+      center: new google.maps.LatLng(37.71859032558813, -97.822265625),
+      zoom: 3,
+      mapTypeControlOptions: {
+        mapTypeIds: ['arteries', google.maps.MapTypeId.SATELLITE, google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.TERRAIN]
+      }
+    };
+    markers = [];
+    lastInfoWindow = null;
+    map = new google.maps.Map(document.getElementById("map_canvas"), mapsOptions);
+    map.mapTypes.set('arteries', arteriesMapType);
+    map.setMapTypeId('arteries');
+    morning = new google.maps.MarkerImage('images/MorningBird.png', new google.maps.Size(30, 21), new google.maps.Point(0, 0), new google.maps.Point(3, 18));
+    afternoon = new google.maps.MarkerImage('images/AfternoonBird.png', new google.maps.Size(30, 21), new google.maps.Point(0, 0), new google.maps.Point(3, 18));
+    night = new google.maps.MarkerImage('images/NightBird.png', new google.maps.Size(30, 21), new google.maps.Point(0, 0), new google.maps.Point(3, 18));
+    golden = new google.maps.MarkerImage('images/GoldenBird.png', new google.maps.Size(30, 21), new google.maps.Point(0, 0), new google.maps.Point(3, 18));
+    shadow = new google.maps.MarkerImage('images/shadow.png', new google.maps.Size(40, 21), new google.maps.Point(0, 0), new google.maps.Point(3, 18));
+    timeToImg = function(time) {
+      if ((5 <= time && time < 12)) {
+        return morning;
+      } else if ((12 <= time && time < 17)) {
+        return afternoon;
+      } else {
+        return night;
+      }
+    };
+    $('#key').click(function() {
+      return $(this).fadeOut();
     });
-
-    socket.on('guess', function(guess){
-        $('#time').html(guess.time + '<span id="stdev">&plusmn;' + guess.stdev + "hours</span>");
+    $('#title').click(function() {
+      return $(this).fadeOut();
     });
-});
+    socket = io.connect();
+    recentTweet = false;
+    socket.on('tweet', function(data) {
+      var infowindow, marker;
+      infowindow = new google.maps.InfoWindow({
+        content: '<div id="content"><div id="text" class="pullquote">' + data.tweet.text.replace(new RegExp(data.word.word, 'i'), "<strong>" + data.word.word + "</strong>") + '</div><div id="guess_explanation">' + ("\"" + data.word.word + "\" is usually posted at " + (realTimeFromFloat(data.word.time)) + " local time, so we used that correlation with the location of the tweet to guess your time.</div></div>")
+      });
+      marker = new google.maps.Marker({
+        map: map,
+        animation: google.maps.Animation.DROP,
+        position: new google.maps.LatLng(data.tweet.coordinates[0], data.tweet.coordinates[1]),
+        title: data.word.word,
+        icon: timeToImg(data.word.time),
+        shadow: shadow
+      });
+      markers.push(marker);
+      if (markers.length > maxMarkers) markers.shift();
+      google.maps.event.addListener(marker, 'click', function() {
+        if (lastInfoWindow != null) lastInfoWindow.close();
+        infowindow.open(map, marker);
+        return lastInfoWindow = infowindow;
+      });
+      if (!recentTweet) {
+        recentTweet = true;
+        $('#tweet').fadeOut('fast', function() {
+          return $(this).html(data.tweet.text.replace(new RegExp(data.word.word, 'i'), "<strong>" + data.word.word + "</strong>")).fadeIn('fast');
+        });
+        return setTimeout((function() {
+          return recentTweet = false;
+        }), 3000);
+      }
+    });
+    return socket.on('guess', function(guess) {
+      return $('#time').html("" + guess.time + "<span id=\"stdev\">σ = " + guess.stdev + "</span>");
+    });
+  });
+
+}).call(this);

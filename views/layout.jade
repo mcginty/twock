@@ -1,36 +1,166 @@
 !!! 5
-//if lt IE 7
-  html.no-js.ie6.oldie(lang='en')
-//if IE 7
-  html.no-js.ie7.oldie(lang='en')
-//if IE 8
-  html.no-js.ie8.oldie(lang='en') 
-//[if gt IE 8]><!
-html.no-js(lang='en')
-  //<![end if]
+html
   head
     meta(charset='utf-8')
     meta(http-equiv='X-UA-Compatible', content='IE=edge,chrome=1')
     title=title
     meta(name="description", content=description)
     meta(name="author", content=author)
-    meta(name="viewport", content='width=device-width, initial-scale=1')
-    link(rel='stylesheet', href='/css/style.css')
-    script(src='//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
-    script
-      window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\\/script>')
-    script(src='https://www.google.com/jsapi')
-    script(src='/js/script.js')
-    
-    //-script(src='js/libs/modernizr-2.0.6.min.js')
-  body(onload='init()')
-    block header
+    meta(name="viewport", content='width=device-width, initial-scale=1.0')
+    script(src='http://maps.googleapis.com/maps/api/js?key=AIzaSyDNuYNVifswQzRykuYlpRGdhtEuqVvM4sY&sensor=false')
+    link(href='css/bootstrap.min.css')
+    style
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0; font: 1em Helvetica, sans-serif; }
+      #map_canvas { height: 100% }
+      .pullquote {
+        margin: 5px;
+        margin-left: 20px;
+        font-family: Georgia, "Times New Roman", Times, serif;
+        font-style: italic;
+        text-indent: -1.3em;
+      }
+       
+      .pullquote:before {
+        content: "“ ";
+        font-size: xx-large;
+        font-weight: bold;
+      }
+       
+      .pullquote:after {
+        content: " ”";
+        font-size: xx-large;
+        font-weight: bold;
+      }
+      #clockbar {
+        position:absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        padding: 0;
+        font-weight: 100;
+        text-align: center;
+        vertical-align:top;
+        pointer-events:none;
+      }
+      #clock {
+        width: 25%;
+        margin: 0 auto;
+        padding: 15px;
+        background: rgba(255,255,255,0.9);
+        border: 1px solid black;
+        border-top: none;
+        -webkit-border-bottom-right-radius: 5px;
+        -webkit-border-bottom-left-radius: 5px;
+        -moz-border-radius-bottomright: 5px;
+        -moz-border-radius-bottomleft: 5px;
+        border-bottom-right-radius: 5px;
+        border-bottom-left-radius: 5px;
+        box-shadow: 0px 0px 20px #000;
+      }
+      #title {
+        font-size: 2.6em;
+        position:absolute;
+        top:0;
+        left:5%;
+        width: 26%;
+        margin: 0 auto;
+        padding: 15px;
+        background: rgba(255,255,255,0.9);
+        border: 1px solid black;
+        border-top: none;
+        -webkit-border-bottom-right-radius: 5px;
+        -webkit-border-bottom-left-radius: 5px;
+        -moz-border-radius-bottomright: 5px;
+        -moz-border-radius-bottomleft: 5px;
+        border-bottom-right-radius: 5px;
+        border-bottom-left-radius: 5px;
+        box-shadow: 0px 0px 20px #000;
+      }
+      #description {
+        display:inline-block;
+        width: 280px;
+        padding-left: 5px;
+        font-size: 0.3em;
+      }
+      #key {
+        font-size: .7em;
+        position:absolute;
+        top:0;
+        right:12%;
+        width: 20%;
+        margin: 0 auto;
+        padding: 15px;
+        background: rgba(255,255,255,0.9);
+        border: 1px solid black;
+        border-top: none;
+        -webkit-border-bottom-right-radius: 5px;
+        -webkit-border-bottom-left-radius: 5px;
+        -moz-border-radius-bottomright: 5px;
+        -moz-border-radius-bottomleft: 5px;
+        border-bottom-right-radius: 5px;
+        border-bottom-left-radius: 5px;
+        box-shadow: 0px 0px 20px #000;
+      }
+      #intro {
+        font-size: 1em;
+      }
+      #time {
+        font-weight: 800;
+        font-size: 3em;
+      }
+      #stdev {
+        font-weight: normal;
+        display:block;
+        font-size: 0.3em;
+      }
+      #tweets {
+        position:absolute;
+        left:0px;
+        bottom:0px;
+        width: 100%;
+        color: white;
+        overflow:hidden;
+        border-top: 1px solid rgba(255,255,255,0.2);
+        background-image: url('images/noise.png');
+        background-image: url('images/noise.png'), -webkit-linear-gradient(top, #353535, #333);
+        box-shadow: 0px 0px 20px #000;
+      }
+      #tweet {
+        background: url('images/subtletwit.png') no-repeat;
+        margin: 10px;
+        padding-left: 42px;
+        vertical-align: center;
+        margin-left: 20px;
+        font-size: 1em;
+        font-weight: thin;
+        text-shadow: 0px 2px 2px #000;
+      }
+      #content {
 
+      }
+      #guess_explanation {
+        font-size: 0.8em;
+        padding-top: 35px;
+        background: url('images/squiggledrop.png') top center no-repeat;
+      }
+
+      #text strong {
+        background: rgba(255,204,51,0.7);
+      }
+      #tweet strong {
+        background: rgba(255,204,51,0.4);
+      }
+  body
     block content
 
     block footer
       footer
-        //-script(defer, src='js/plugins.js')
+        script(src='//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
+        script
+          window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\\/script>')
+        script(src='js/bootstrap.min.js')
+        script(defer, src='/js/script.js')
         script(defer, src='/socket.io/socket.io.js')
           script
             var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview'],['_trackPageLoadTime']];

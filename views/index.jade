@@ -1,10 +1,28 @@
 extends layout
 
 block content
-    div(id='container')
-        div(id='map3d')
-        div(id='tweeties')
-            div(id='clock')
-                div(id='intro') The twock reads...
-                div(id='time') loading
-            div(id='tweets')
+    div(style='display:none')
+        img(alt='',src='images/MorningBird.png')
+        img(alt='',src='images/AfternoonBird.png')
+        img(alt='',src='images/NightBird.png')
+        img(alt='',src='images/shadow.png')
+    div(id='map_canvas')
+    div(id='title') Twock
+        div(id='description') reads twitter posts and tries to guess the time based on what words people are using at what locations
+    div(id='clockbar')
+        div(id='clock')
+            div(id='intro') The twock reads...
+            div(id='time') loading
+    div(id='key')
+        div(id='key_details')
+            div
+                img(alt='morning bird', src='images/MorningBird.png', height='10px')
+                span Tweet we thought was from the morning.
+            div
+                img(alt='afternoon bird',src='images/AfternoonBird.png', height='10px')
+                span Tweet we thought was from the afternoon.
+            div
+                img(alt='night bird',src='images/NightBird.png', height='10px')
+                span Tweet we thought was from the night.
+    div(id='tweets')
+        div(id='tweet')
