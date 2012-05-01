@@ -82,7 +82,7 @@ stream.on "tweet", (tweetText) ->
     try
       if tweet.geo?
         word = twock.matchWord tweet.text
-        if tweet.geo.type = "Point" and word?
+        if tweet.geo.type == "Point" and word?
           options =
             host: "www.askgeo.com"
             port: 80

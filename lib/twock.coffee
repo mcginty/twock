@@ -113,10 +113,10 @@ guessTimeFromZone = (zone) ->
     guesses.push zone - getCircularAverage(times, 2, -12, 12) + word.time  if word.sources.length > 0
     stdevs.push getVariance(times, 2, -12, 12) if word.sources.length > 0
   avgstd = getAverageFromNumArr(stdevs, 2)
-  log.debug "guesses: #{getNumWithSetDec(guess, 2) for guess in guesses} with stdev #{getVariance(guesses, 2, 0, 24)}"
-  log.debug "stdevs: #{stdevs} with avg #{avgstd}"
-  guesses = guesses.filter (e,i,a)-> stdevs[i] < avgstd
-  log.debug "filtered guesses: #{getNumWithSetDec(guess, 2) for guess in guesses} with stdev #{getVariance(guesses, 2, 0, 24)}"
+  log.debug "guesses: #{getNumWithSetDec(guess, 2) for guess in guesses} with var #{getVariance(guesses, 2, 0, 24)}"
+  log.debug "vars: #{stdevs} with avg #{avgstd}"
+  guesses = guesses.filter (e,i,a)-> stdevs[i] <= avgstd
+  log.debug "filtered guesses: #{getNumWithSetDec(guess, 2) for guess in guesses} with var #{getVariance(guesses, 2, 0, 24)}"
 
   [(getCircularAverage guesses, 2, 0, 24), getStandardDeviation(guesses,2, 0, 24)]
 
@@ -149,3 +149,5 @@ exports.grabAndPost = grabAndPost
 exports.radiansToZone = radiansToZone
 exports.zoneToRadians = zoneToRadians
 exports.getCircularAverage = getCircularAverage
+exports.getVariance = getVariance
+exports.getStandardDeviation = getStandardDeviation

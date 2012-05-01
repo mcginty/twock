@@ -240,7 +240,9 @@ td { vertical-align: top; }
 #time {
   font-size: 700%;
 }
-
+#stdev {
+  font-size: 25%;
+}
 #tweets {
   height: 600px;
   overflow-y: scroll;
