@@ -77,7 +77,7 @@ stream.on "tweet", (tweetText) ->
   catch error
     log.error error
     log.error "HTTP response: #{tweetText}"
-    break
+    return
   if typeof tweet.text isnt "undefined" and tweet.text?
     try
       if tweet.geo?
